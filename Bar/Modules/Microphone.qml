@@ -31,12 +31,21 @@ Item {
     }
 
     function getIconColor() {
+        // Show red icon when microphone is in use, even when collapsed
+        if (shell && shell.micInUse && !isMuted()) {
+            return "#ef4444"; // Red color to indicate mic is in use
+        }
         if (micVolume <= 100) return Theme.textPrimary;
         return getMicColor(); // Only use warning blend when >100%
     }
 
     function isMuted() {
         return shell && shell.defaultAudioSource && shell.defaultAudioSource.audio && shell.defaultAudioSource.audio.muted;
+    }
+
+    function shouldAutoHide() {
+        // Don't auto-hide when microphone is in use - keep visible for privacy awareness
+        return !(shell && shell.micInUse && !isMuted());
     }
 
     PillIndicator {
@@ -49,7 +58,7 @@ Item {
         iconTextColor: Theme.backgroundPrimary
         textColor: Theme.textPrimary
         collapsedIconColor: getIconColor()
-        autoHide: true
+        autoHide: shouldAutoHide()
 
         StyledTooltip {
             id: micTooltip
@@ -106,10 +115,20 @@ Item {
             }
         }
         function onMicInUseChanged() {
-            // Update icon color when microphone usage state changes
+            // Update icon colors and visibility when microphone usage state changes
             pillIndicator.iconCircleColor = Qt.binding(function() {
                 return isMuted() ? Theme.textSecondary : getMicColor();
             });
+            pillIndicator.collapsedIconColor = Qt.binding(function() {
+                return getIconColor();
+            });
+            pillIndicator.autoHide = Qt.binding(function() {
+                return shouldAutoHide();
+            });
+            // Show the indicator when mic becomes in use
+            if (shell && shell.micInUse && !isMuted()) {
+                pillIndicator.show();
+            }
         }
     }
 
@@ -120,6 +139,12 @@ Item {
             pillIndicator.icon = isMuted() ? "mic_off" : "mic";
             pillIndicator.iconCircleColor = Qt.binding(function() {
                 return isMuted() ? Theme.textSecondary : getMicColor();
+            });
+            pillIndicator.collapsedIconColor = Qt.binding(function() {
+                return getIconColor();
+            });
+            pillIndicator.autoHide = Qt.binding(function() {
+                return shouldAutoHide();
             });
             pillIndicator.show();
         }
@@ -143,8 +168,14 @@ Item {
         }
         onExited: {
             micDisplay.containsMouse = false
-            pillIndicator.autoHide = true;
-            pillIndicator.hide()
+            // Restore the auto-hide behavior based on mic usage state
+            pillIndicator.autoHide = Qt.binding(function() {
+                return shouldAutoHide();
+            });
+            // Only hide if should auto-hide (not in use)
+            if (shouldAutoHide()) {
+                pillIndicator.hide()
+            }
         }
         cursorShape: Qt.PointingHandCursor
         onWheel: (wheel) => {
