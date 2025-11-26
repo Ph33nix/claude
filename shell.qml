@@ -49,6 +49,29 @@ Scope {
         volume = stepped;
     }
 
+    // Microphone volume property reflecting current input volume in 0-100
+    // Will be kept in sync dynamically below
+    property int micVolume: (defaultAudioSource && defaultAudioSource.audio && !defaultAudioSource.audio.muted)
+                           ? Math.round(defaultAudioSource.audio.volume * 100)
+                           : 0
+
+    // Function to update microphone volume with clamping, stepping, and applying to audio source
+    function updateMicVolume(vol) {
+        var clamped = Math.max(0, Math.min(100, vol));
+        var stepped = roundToStep(clamped, 5);
+        if (defaultAudioSource && defaultAudioSource.audio) {
+            defaultAudioSource.audio.volume = stepped / 100;
+        }
+        micVolume = stepped;
+    }
+
+    // Function to toggle microphone mute
+    function toggleMicMute() {
+        if (defaultAudioSource && defaultAudioSource.audio) {
+            defaultAudioSource.audio.muted = !defaultAudioSource.audio.muted;
+        }
+    }
+
     Component.onCompleted: {
         Quickshell.shell = root;
     }
@@ -143,8 +166,11 @@ Scope {
     // Reference to the default audio sink from Pipewire
     property var defaultAudioSink: Pipewire.defaultAudioSink
 
+    // Reference to the default audio source (microphone) from Pipewire
+    property var defaultAudioSource: Pipewire.defaultAudioSource
+
     PwObjectTracker {
-        objects: [Pipewire.defaultAudioSink]
+        objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource]
     }
 
     IPCHandlers {
@@ -182,6 +208,26 @@ Scope {
                 } else {
                     volume = Math.round(defaultAudioSink.audio.volume * 100);
                     console.log("Audio unmuted, volume restored to:", volume);
+                }
+            }
+        }
+    }
+
+    Connections {
+        target: defaultAudioSource ? defaultAudioSource.audio : null
+        function onVolumeChanged() {
+            if (defaultAudioSource.audio && !defaultAudioSource.audio.muted) {
+                micVolume = Math.round(defaultAudioSource.audio.volume * 100);
+                console.log("Microphone volume changed externally to:", micVolume);
+            }
+        }
+        function onMutedChanged() {
+            if (defaultAudioSource.audio) {
+                if (defaultAudioSource.audio.muted) {
+                    console.log("Microphone muted");
+                } else {
+                    micVolume = Math.round(defaultAudioSource.audio.volume * 100);
+                    console.log("Microphone unmuted, volume:", micVolume);
                 }
             }
         }

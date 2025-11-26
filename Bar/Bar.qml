@@ -143,6 +143,13 @@ Scope {
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
+                        Microphone {
+                            id: widgetsMicrophone
+
+                            shell: rootScope.shell
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
                         ClockWidget {
                             screen: modelData
                             anchors.verticalCenter: parent.verticalCenter
