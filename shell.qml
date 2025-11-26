@@ -55,6 +55,9 @@ Scope {
                            ? Math.round(defaultAudioSource.audio.volume * 100)
                            : 0
 
+    // Property to track if microphone is actively being used by a program
+    property bool micInUse: false
+
     // Function to update microphone volume with clamping, stepping, and applying to audio source
     function updateMicVolume(vol) {
         var clamped = Math.max(0, Math.min(100, vol));
@@ -72,8 +75,29 @@ Scope {
         }
     }
 
+    // Function to check if microphone is being used by any program
+    function updateMicInUse() {
+        if (!defaultAudioSource || !Pipewire.nodes || !Pipewire.nodes.values) {
+            micInUse = false;
+            return;
+        }
+
+        // Check if there are any active stream nodes connected to the microphone source
+        var inUse = false;
+        for (var i = 0; i < Pipewire.nodes.values.length; ++i) {
+            var node = Pipewire.nodes.values[i];
+            // A stream node that is a source (recording from microphone) indicates mic is in use
+            if (node.isStream && !node.isSink && node.audio) {
+                inUse = true;
+                break;
+            }
+        }
+        micInUse = inUse;
+    }
+
     Component.onCompleted: {
         Quickshell.shell = root;
+        root.updateMicInUse();
     }
 
     Background {}
@@ -171,6 +195,20 @@ Scope {
 
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource]
+    }
+
+    // Track all Pipewire nodes to detect microphone usage
+    PwObjectTracker {
+        id: allNodesTracker
+        objects: Pipewire.nodes
+    }
+
+    // Update microphone usage state when nodes change
+    Connections {
+        target: Pipewire.nodes
+        function onValuesChanged() {
+            root.updateMicInUse();
+        }
     }
 
     IPCHandlers {

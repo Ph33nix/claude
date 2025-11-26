@@ -14,6 +14,10 @@ Item {
     height: pillIndicator.height
 
     function getMicColor() {
+        // If microphone is actively being used by a program, show red background
+        if (shell && shell.micInUse && !isMuted()) {
+            return "#ef4444"; // Red color to indicate mic is in use
+        }
         if (micVolume <= 100) return Theme.accentPrimary;
         // Calculate interpolation factor (0 at 100%, 1 at 200%)
         var factor = (micVolume - 100) / 100;
@@ -49,7 +53,10 @@ Item {
 
         StyledTooltip {
             id: micTooltip
-            text: "Microphone: " + micVolume + "%\nLeft click to mute/unmute.\nRight click for input devices.\nScroll up/down to change sensitivity."
+            text: "Microphone: " + micVolume + "%" +
+                  (shell && shell.micInUse ? " (IN USE)" : "") +
+                  "\nLeft click to mute/unmute.\nRight click for input devices.\nScroll up/down to change sensitivity." +
+                  "\n\nRed background = mic is being used by a program"
             positionAbove: false
             tooltipVisible: !deviceSelector.visible && micDisplay.containsMouse
             targetItem: pillIndicator
@@ -98,6 +105,12 @@ Item {
                 }
             }
         }
+        function onMicInUseChanged() {
+            // Update icon color when microphone usage state changes
+            pillIndicator.iconCircleColor = Qt.binding(function() {
+                return isMuted() ? Theme.textSecondary : getMicColor();
+            });
+        }
     }
 
     // Track mute state changes
@@ -105,6 +118,9 @@ Item {
         target: shell && shell.defaultAudioSource ? shell.defaultAudioSource.audio : null
         function onMutedChanged() {
             pillIndicator.icon = isMuted() ? "mic_off" : "mic";
+            pillIndicator.iconCircleColor = Qt.binding(function() {
+                return isMuted() ? Theme.textSecondary : getMicColor();
+            });
             pillIndicator.show();
         }
     }
