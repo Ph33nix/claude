@@ -9,6 +9,11 @@ window {
     background-repeat: no-repeat;
 }
 
+/* Position the button grid at the bottom */
+#lock, #logout, #shutdown, #suspend, #reboot {
+    margin: 15px;
+}
+
 button {
     color: #CACEE2;
     background-color: rgba(26, 28, 38, 0.9);
@@ -19,17 +24,18 @@ button {
     background-repeat: no-repeat;
     background-position: center;
     background-size: 30%;
-    min-width: 150px;
-    min-height: 150px;
-    margin: 10px;
+    min-width: 180px;
+    min-height: 180px;
+    margin: 15px;
     transition: all 0.3s ease;
 }
 
 button:focus, button:active, button:hover {
-    background-color: rgba(42, 45, 58, 0.9);
+    background-color: rgba(42, 45, 58, 0.95);
     border-color: rgba(168, 174, 255, 0.95);
     outline-style: none;
     color: #A8AEFF;
+    transform: scale(1.05);
 }
 
 #lock {
