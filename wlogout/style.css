@@ -1,0 +1,54 @@
+* {
+	background-image: none;
+        background-color: transparent;
+}
+window {
+	background-color: transparent;
+}
+grid {
+	margin: 200px;
+}
+
+button {
+        padding: 0;
+        margin: 25px;
+	background-color: transparent;
+        color: rgb(205, 214, 244);
+	border-style: solid;
+	border-width: 1px;
+        border-color: rgba(49, 50, 68, 0.95);
+        border-radius: 0;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 100px 100px;
+}
+
+button:hover {
+	background-color: transparent;
+	outline-style: none;
+        border: 1px solid rgba(137, 180, 250, 0.95);
+}
+
+#lock {
+    background-image: image(url("/home/fefe/.config/wlogout/icons/icons8-lock-100.png"), url("/home/fefe/.config/wlogout/icons/icons8-lock-100.png"));
+}
+
+#logout { 
+    background-image: image(url(,"/home/fefe/.config/wlogout/icons/icons8-logout-100.png"), url("/home/fefe/.config/wlogout/icons/icons8-logout-100.png"));
+}
+
+#suspend {
+    background-image: image(url(,"/home/fefe/.config/wlogout/icons/icons8-sleep-100.png"), url("/home/fefe/.config/wlogout/icons/icons8-sleep-100.png"));
+}
+
+#hibernate {
+#    background-image: image(url("/usr/share/wlogout/icons/hibernate.png"), url("/usr/local/share/wlogout/icons/hibernate.png"));
+#}
+
+#shutdown {
+    background-image: image(url(,"/home/fefe/.config/wlogout/icons/icons8-shutdown-100.png"), url("/home/fefe/.config/wlogout/icons/icons8-shutdown-100.png"));
+}
+
+#reboot {
+    background-image: image(url(,"/home/fefe/.config/wlogout/icons/icons8-restart-100.png"), url("/home/fefe/.config/wlogout/icons/icons8-restart-100.png"));
+}
